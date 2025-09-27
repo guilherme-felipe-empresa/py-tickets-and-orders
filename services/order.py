@@ -1,14 +1,16 @@
 
 from django.db import transaction
-from db.models import Order, Ticket, User
+from db.models import Order, Ticket
+from django.contrib.auth import get_user_model
 from datetime import datetime
+from django.db.models import QuerySet
 
 
 @transaction.atomic
 def create_order(tickets: list, username: str, date: str = None) -> Order:
 
     try:
-        user = User.objects.get(username=username)
+        user = get_user_model().objects.get(username=username)
     except ValueError:
         raise ValueError(f"user with username '{username}' does not exist")
 
@@ -37,7 +39,7 @@ def create_order(tickets: list, username: str, date: str = None) -> Order:
     return order
 
 
-def get_orders(username: str = None) -> Order:
+def get_orders(username: str = None) -> QuerySet[Order]:
     if username:
         return Order.objects.filter(user__username=username)
     return Order.objects.all()
